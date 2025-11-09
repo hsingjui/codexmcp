@@ -33,12 +33,18 @@ def run_shell_command(cmd: list[str]) -> Generator[str, None, None]:
     Yields:
         Output lines from the command
     """
-    # On Windows, wrap command with cmd.exe to execute .cmd batch files
-    popen_cmd = ["cmd", "/c", *cmd] if os.name == "nt" else cmd
+    # On Windows, codex is exposed via a *.cmd shim. Use cmd.exe with /s so
+    # user prompts containing quotes/newlines aren't reinterpreted as shell syntax.
+    if os.name == "nt":
+        quoted_cmd = subprocess.list2cmdline(cmd)
+        popen_cmd = ["cmd", "/d", "/s", "/c", quoted_cmd]
+    else:
+        popen_cmd = cmd
 
     process = subprocess.Popen(
         popen_cmd,
         shell=False,  # Safer: no shell injection
+        stdin=subprocess.DEVNULL,  # Prevent process from waiting for input
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         universal_newlines=True,
