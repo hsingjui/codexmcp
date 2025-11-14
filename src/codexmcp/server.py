@@ -143,7 +143,7 @@ async def codex(
     skip_git_repo_check: Annotated[
         bool,
         "Allow codex running outside a Git repository (useful for one-off directories).",
-    ] = False,
+    ] = True,
     return_all_messages: Annotated[
         bool,
         "Return all messages (e.g. reasoning, tool calls, etc.) from the codex session. Set to `False` by default, only the agent's final reply message is returned.",
